@@ -1,0 +1,64 @@
+# Cloud Build for Terraform Infrastructure Pipeline
+serviceAccount: 'projects/$PROJECT_ID/serviceAccounts/${_CICD_RUNNER_SA_EMAIL}'
+
+steps:
+  # -------------------------------
+  # Terraform Init
+  # -------------------------------
+  - name: 'hashicorp/terraform:1.10'
+    id: "Terraform Init"
+    entrypoint: 'sh'
+    dir: 'deploy/tf'
+    args:
+      - '-c'
+      - |
+        terraform init \
+          -backend-config="bucket=${_TF_STATE_BUCKET}" \
+          -reconfigure
+
+  # -------------------------------
+  # Terraform Plan
+  # -------------------------------
+  - name: 'hashicorp/terraform:1.10'
+    id: "Terraform Plan"
+    entrypoint: 'sh'
+    dir: 'deploy/tf'
+    args:
+      - '-c'
+      - |
+        terraform plan \
+          -var="project_id=$PROJECT_ID" \
+          -var="region=${_REGION}" \
+          -var="service_name=${_SERVICE_NAME}" \
+          -var="artifact_repo_name=${_GAR_REPO}" \
+          -var="repository_owner=${_REPO_OWNER}" \
+          -var="repository_name=${_REPO_NAME}" \
+          -out=tfplan
+
+    waitFor: ["Terraform Init"]
+
+  # -------------------------------
+  # Terraform Apply
+  # -------------------------------
+  - name: 'hashicorp/terraform:1.10'
+    id: "Terraform Apply"
+    entrypoint: 'sh'
+    dir: 'deploy/tf'
+    args:
+      - '-c'
+      - |
+        terraform apply -auto-approve tfplan
+
+    waitFor: ["Terraform Plan"]
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+substitutions:
+  _TF_STATE_BUCKET: "bulerez786-tfstate"
+  _REGION: "us-central1"
+  _GAR_REPO: "medicine-forecast"
+  _SERVICE_NAME: "medicine-forecast-service"
+  _CICD_RUNNER_SA_EMAIL: "ci-cd-terraform@bulerez786.iam.gserviceaccount.com"
+  _REPO_OWNER: "manish-karautia"
+  _REPO_NAME: "Terraform_Medicine_Forecast"

@@ -1,0 +1,69 @@
+# Cloud Build for Application Deployment (Cloud Run)
+serviceAccount: 'projects/$PROJECT_ID/serviceAccounts/${_CICD_RUNNER_SA_EMAIL}'
+
+steps:
+  # -------------------------------
+  # 1. Download ML models from GCS
+  # -------------------------------
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
+    id: "Download Models"
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "Downloading models from GCS bucket..."
+        mkdir -p app/models
+        gsutil cp gs://bulerez786-ml-models/* app/models/ || true
+        ls -la app/models
+
+  # -------------------------------
+  # 2. Build Docker image
+  # -------------------------------
+  - name: 'gcr.io/cloud-builders/docker'
+    id: "Build Image"
+    args:
+      - build
+      - '-t'
+      - '${_AR_HOSTNAME}/${PROJECT_ID}/${_GAR_REPO}/${_SERVICE_NAME}:$SHORT_SHA'
+      - '.'
+
+  # -------------------------------
+  # 3. Push to Artifact Registry
+  # -------------------------------
+  - name: 'gcr.io/cloud-builders/docker'
+    id: "Push Image"
+    args:
+      - push
+      - '${_AR_HOSTNAME}/${PROJECT_ID}/${_GAR_REPO}/${_SERVICE_NAME}:$SHORT_SHA'
+
+  # -------------------------------
+  # 4. Deploy to Cloud Run
+  # -------------------------------
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
+    id: "Deploy Cloud Run"
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - ${_SERVICE_NAME}
+      - '--image=${_AR_HOSTNAME}/${PROJECT_ID}/${_GAR_REPO}/${_SERVICE_NAME}:$SHORT_SHA'
+      - '--region=${_REGION}'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+      - '--max-instances=2'
+      - '--set-env-vars=PROJECT_ID=${PROJECT_ID},REGION=${_REGION}'
+      - '--quiet'
+
+images:
+  - '${_AR_HOSTNAME}/${PROJECT_ID}/${_GAR_REPO}/${_SERVICE_NAME}:$SHORT_SHA'
+
+options:
+  substitutionOption: ALLOW_LOOSE
+  logging: CLOUD_LOGGING_ONLY
+
+substitutions:
+  _GAR_REPO: "medicine-forecast"
+  _SERVICE_NAME: "medicine-forecast-service"
+  _AR_HOSTNAME: "us-central1-docker.pkg.dev"
+  _REGION: "us-central1"
+  _CICD_RUNNER_SA_EMAIL: "ci-cd-terraform@bulerez786.iam.gserviceaccount.com"
