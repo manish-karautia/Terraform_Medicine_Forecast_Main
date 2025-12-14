@@ -55,10 +55,10 @@ options:
   logging: CLOUD_LOGGING_ONLY
 
 substitutions:
-  _TF_STATE_BUCKET: "bulerez786-tfstate"
+  _TF_STATE_BUCKET: "terraform-tfstate"
   _REGION: "us-central1"
   _GAR_REPO: "medicine-forecast"
   _SERVICE_NAME: "medicine-forecast-service"
-  _CICD_RUNNER_SA_EMAIL: "ci-cd-terraform@bulerez786.iam.gserviceaccount.com"
+  _CICD_RUNNER_SA_EMAIL: "ci-cd-terraform@terraform-481009.iam.gserviceaccount.com"
   _REPO_OWNER: "manish-karautia"
   _REPO_NAME: "Terraform_Medicine_Forecast"

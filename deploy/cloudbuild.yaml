@@ -13,7 +13,7 @@ steps:
       - |
         echo "Downloading models from GCS bucket..."
         mkdir -p app/models
-        gsutil cp gs://bulerez786-ml-models/* app/models/ || true
+        gsutil cp gs://usaid_bucket_terraform/* app/models/ || true
         ls -la app/models
 
   # -------------------------------
@@ -66,4 +66,4 @@ substitutions:
   _SERVICE_NAME: "medicine-forecast-service"
   _AR_HOSTNAME: "us-central1-docker.pkg.dev"
   _REGION: "us-central1"
-  _CICD_RUNNER_SA_EMAIL: "ci-cd-terraform@bulerez786.iam.gserviceaccount.com"
+  _CICD_RUNNER_SA_EMAIL: "ci-cd-terraform@terraform-481009.iam.gserviceaccount.com"
