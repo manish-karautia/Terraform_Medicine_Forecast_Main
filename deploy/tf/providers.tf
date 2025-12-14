@@ -7,7 +7,7 @@ terraform {
   }
 
   backend "gcs" {
-    bucket = "bulerez786-tfstate"
+    bucket = "terraform-tfstate"
   }
 }
 
