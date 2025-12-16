@@ -5,10 +5,7 @@ terraform {
       version = "5.22.0"
     }
   }
-
-  backend "gcs" {
-    bucket = "terraform-tfstate"
-  }
+  
 }
 
 provider "google" {

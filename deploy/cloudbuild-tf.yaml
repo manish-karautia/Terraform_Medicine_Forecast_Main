@@ -55,7 +55,7 @@ options:
   logging: CLOUD_LOGGING_ONLY
 
 substitutions:
-  _TF_STATE_BUCKET: "terraform-tfstate"
+  _TF_STATE_BUCKET: "terraform1-tfstate"
   _REGION: "us-central1"
   _GAR_REPO: "medicine-forecast"
   _SERVICE_NAME: "medicine-forecast-service"

@@ -21,11 +21,3 @@ variable "cicd_sa_name" {
   type    = string
   default = "ci-cd-terraform"
 }
-
-variable "repository_owner" {
-  type = string
-}
-
-variable "repository_name" {
-  type = string
-}
