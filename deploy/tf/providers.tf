@@ -5,10 +5,8 @@ terraform {
       version = "5.22.0"
     }
   }
-  
-}
 
-provider "google" {
-  project = var.project_id
-  region  = var.region
+  backend "gcs" {
+    bucket = "terraform1-tfstate"
+  }
 }
